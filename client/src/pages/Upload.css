@@ -30,33 +30,104 @@
     margin-top: 2px;
 }
 
+.progress-section {
+    margin-top: 20px;
+}
+
 .progress-container {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-top: 16px;
 }
 
 .progress-bar {
     flex: 1;
-    height: 6px;
+    height: 8px;
     background: var(--bg-secondary);
-    border-radius: 3px;
+    border-radius: 4px;
     overflow: hidden;
 }
 
 .progress-fill {
     height: 100%;
     background: linear-gradient(90deg, var(--accent), var(--cyan));
-    border-radius: 3px;
-    transition: width 0.3s ease;
+    border-radius: 4px;
+    transition: width 0.4s ease;
+}
+
+.progress-fill.completed {
+    background: linear-gradient(90deg, var(--green), var(--accent));
 }
 
 .progress-text {
     font-family: var(--font-mono);
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     color: var(--accent);
     font-weight: 600;
-    min-width: 40px;
+    min-width: 42px;
     text-align: right;
+}
+
+.progress-status {
+    margin-top: 10px;
+    font-size: 0.85rem;
+}
+
+.status-active {
+    color: var(--text-secondary);
+}
+
+.status-success {
+    color: var(--green);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+}
+
+.upload-error {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: var(--radius-md);
+    color: var(--red);
+    font-size: 0.85rem;
+}
+
+.upload-error svg {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.upload-error span {
+    flex: 1;
+}
+
+.upload-tip {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+}
+
+.upload-tip h3 {
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+}
+
+.upload-tip p {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.upload-tip code {
+    font-family: var(--font-mono);
+    background: var(--bg-secondary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: var(--cyan);
 }
