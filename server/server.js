@@ -43,9 +43,9 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Routes (will be added in Day 3)
-// app.use('/api/analysis', require('./routes/analysis'));
-// app.use('/api/rules', require('./routes/rules'));
+// Routes
+app.use('/api/analysis', require('./routes/analysis'));
+app.use('/api/rules', require('./routes/rules'));
 
 // Socket.IO connection handler
 io.on('connection', (socket) => {
