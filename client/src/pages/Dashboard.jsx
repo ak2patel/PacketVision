@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import Chart from 'react-apexcharts';
 import { HiOutlineChartBar, HiOutlineGlobeAlt, HiOutlineArrowLeft, HiOutlineDownload } from 'react-icons/hi';
 import { getAnalysis } from '../services/api';
+import PacketTable from '../components/PacketTable';
 import './Dashboard.css';
 
 function Dashboard() {
@@ -218,6 +219,11 @@ function Dashboard() {
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No domains detected</p>
         )}
       </div>
+
+      {/* Packet Table */}
+      {analysis.packets && analysis.packets.length > 0 && (
+        <PacketTable packets={analysis.packets} />
+      )}
     </div>
   );
 }
