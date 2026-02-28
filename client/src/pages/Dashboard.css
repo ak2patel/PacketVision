@@ -1,0 +1,45 @@
+/* Dashboard styles */
+
+.dashboard-header {
+    margin-bottom: 24px;
+}
+
+.chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.chart-card {
+    min-height: 380px;
+}
+
+.domain-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.domain-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    font-size: 0.8rem;
+}
+
+.domain-name {
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+    font-size: 0.78rem;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .chart-grid {
+        grid-template-columns: 1fr;
+    }
+}
