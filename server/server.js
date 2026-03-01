@@ -15,10 +15,13 @@ connectDB();
 const app = express();
 const server = http.createServer(app);
 
+// Allowed origins for CORS
+const CLIENT_URL = process.env.CLIENT_URL || '*';
+
 // Socket.IO setup
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:5173',
+    origin: CLIENT_URL,
     methods: ['GET', 'POST'],
   },
 });
@@ -27,9 +30,9 @@ const io = new Server(server, {
 app.set('io', io);
 
 // Middleware
-app.use(cors());
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use(cors({ origin: CLIENT_URL }));
+app.use(express.json({ limit: '200mb' }));
+app.use(express.urlencoded({ extended: true, limit: '200mb' }));
 
 // Static uploads folder
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -46,6 +49,22 @@ app.get('/api/health', (req, res) => {
 // Routes
 app.use('/api/analysis', require('./routes/analysis'));
 app.use('/api/rules', require('./routes/rules'));
+
+// Global error handler — catches Multer errors & others
+app.use((err, req, res, next) => {
+  console.error('❌ Server error:', err.message);
+  console.error(err.stack);
+
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(413).json({ error: 'File too large. Max 200MB.' });
+  }
+
+  if (err.message && err.message.includes('Only .pcap')) {
+    return res.status(400).json({ error: err.message });
+  }
+
+  res.status(500).json({ error: err.message || 'Internal Server Error' });
+});
 
 // Socket.IO connection handler
 io.on('connection', (socket) => {

@@ -51,6 +51,8 @@ function Upload() {
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles.length > 0) {
       setFile(acceptedFiles[0]);
+      setAnalysisId(null);
+      setUploading(false);
       setError(null);
       setCompleted(false);
       setProgress(0);
@@ -64,7 +66,7 @@ function Upload() {
       'application/octet-stream': ['.pcap', '.pcapng'],
     },
     maxFiles: 1,
-    maxSize: 50 * 1024 * 1024,
+    maxSize: 200 * 1024 * 1024,
   });
 
   const handleUpload = async () => {
@@ -127,7 +129,7 @@ function Upload() {
               ? 'Drop the file here...'
               : 'Drag & drop a .pcap file here'}
           </h3>
-          <p>or click to browse • Max 50MB • .pcap / .pcapng</p>
+          <p>or click to browse • Max 200MB • .pcap / .pcapng</p>
         </div>
       )}
 

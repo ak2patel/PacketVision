@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: packetvision-api
+    runtime: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: MONGO_URI
+        sync: false
+      - key: NODE_ENV
+        value: production
+      - key: MAX_FILE_SIZE
+        value: 200
