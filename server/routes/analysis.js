@@ -1,8 +1,14 @@
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
 const router = express.Router();
 const upload = require('../middleware/upload');
 const Analysis = require('../models/Analysis');
+const BlockRule = require('../models/BlockRule');
 const { runAnalysis } = require('../services/analysisService');
+const { parsePcapFile, writePcapFile } = require('../services/pcapParser');
+const { parsePacket } = require('../services/packetParser');
+const { inspect } = require('../services/dpiEngine');
 
 /**
  * POST /api/analysis/upload
@@ -60,6 +66,73 @@ router.get('/', async (req, res) => {
 });
 
 /**
+ * GET /api/analysis/:id/export
+ * Download a filtered .pcap with blocked packets removed
+ */
+router.get('/:id/export', async (req, res) => {
+  try {
+    const analysis = await Analysis.findById(req.params.id);
+    if (!analysis) {
+      return res.status(404).json({ error: 'Analysis not found' });
+    }
+
+    const inputPath = path.join(__dirname, '..', 'uploads', analysis.filename);
+    if (!fs.existsSync(inputPath)) {
+      return res.status(404).json({ error: 'Original PCAP file not found' });
+    }
+
+    // Load active block rules
+    const rules = await BlockRule.find({ active: true });
+
+    // Re-read the PCAP and filter
+    const { packets } = parsePcapFile(inputPath);
+    const filteredPackets = [];
+
+    for (let i = 0; i < packets.length; i++) {
+      const { header, data } = packets[i];
+      const parsed = parsePacket(data, i, header);
+
+      if (!parsed) {
+        filteredPackets.push(packets[i]); // Keep unparseable packets
+        continue;
+      }
+
+      const dpi = inspect(data, parsed);
+      let blocked = false;
+
+      for (const rule of rules) {
+        if (!rule.active) continue;
+        if (rule.type === 'ip' && (parsed.srcIp === rule.value || parsed.destIp === rule.value)) { blocked = true; break; }
+        if (rule.type === 'domain' && dpi.sni && dpi.sni.toLowerCase().includes(rule.value.toLowerCase())) { blocked = true; break; }
+        if (rule.type === 'app' && dpi.appType.toLowerCase() === rule.value.toLowerCase()) { blocked = true; break; }
+      }
+
+      if (!blocked) {
+        filteredPackets.push(packets[i]);
+      }
+    }
+
+    // Write the filtered pcap to a temp file
+    const exportName = `filtered-${analysis.originalName}`;
+    const exportPath = path.join(__dirname, '..', 'uploads', `export-${Date.now()}.pcap`);
+    writePcapFile(exportPath, filteredPackets);
+
+    // Stream it back and clean up
+    res.setHeader('Content-Disposition', `attachment; filename="${exportName}"`);
+    res.setHeader('Content-Type', 'application/octet-stream');
+
+    const stream = fs.createReadStream(exportPath);
+    stream.pipe(res);
+    stream.on('end', () => {
+      fs.unlink(exportPath, () => {}); // Cleanup temp file
+    });
+  } catch (err) {
+    console.error('Export error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
  * GET /api/analysis/:id
  * Get full analysis details by ID
  */
@@ -86,9 +159,6 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Analysis not found' });
     }
 
-    // Optionally delete the uploaded file
-    const fs = require('fs');
-    const path = require('path');
     const filePath = path.join(__dirname, '..', 'uploads', analysis.filename);
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);

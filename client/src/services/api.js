@@ -26,6 +26,9 @@ export const uploadPcap = (file, onProgress) => {
 
 export const getAnalysis = (id) => api.get(`/analysis/${id}`);
 export const getAnalyses = () => api.get('/analysis');
+export const exportFilteredPcap = (id) => {
+  window.open(`${API_BASE}/analysis/${id}/export`, '_blank');
+};
 
 // Rules endpoints
 export const getRules = () => api.get('/rules');

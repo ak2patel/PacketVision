@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Chart from 'react-apexcharts';
 import { HiOutlineChartBar, HiOutlineGlobeAlt, HiOutlineArrowLeft, HiOutlineDownload } from 'react-icons/hi';
-import { getAnalysis } from '../services/api';
+import { getAnalysis, exportFilteredPcap } from '../services/api';
 import PacketTable from '../components/PacketTable';
 import './Dashboard.css';
 
@@ -138,6 +138,9 @@ function Dashboard() {
           <h2>Analysis: {analysis.originalName}</h2>
           <p>PCAP v{analysis.pcapVersion} • {analysis.linkType} • {new Date(analysis.createdAt).toLocaleString()}</p>
         </div>
+        <button className="btn btn-primary" onClick={() => exportFilteredPcap(id)}>
+          <HiOutlineDownload /> Download Filtered PCAP
+        </button>
       </div>
 
       {/* Stat Cards */}
